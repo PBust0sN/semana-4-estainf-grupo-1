@@ -1,0 +1,61 @@
+---
+title: "Lectura 5"
+author: "Patricio Bustos"
+date: "2025-09-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(pwr)
+library(rcompanion)
+library(RVAideMemoire)
+library(tidyr)
+```
+
+<h2> Contexto: </h2>
+
+Las autoridades de la universidad desean conocer si las semanas de receso (sin actividades docentes)ayuda o no al descanso del estudiantado. Para eso seleccionaron 20 estudiantes de forma aleatoria y lesconsultaron si se sentían “cansada/o” o “descansada/o” en tres ocasiones: el lunes, miércoles y viernesde la primera semana de receso del semestre. Los resultados se muestran en la siguiente tabla, donde 0 representa cansancio y 1 descanso.
+
+<h4> **Pregunta** </h4>
+
+¿Hay diferencias entre los tres periodos de tiempo sin actividades? No olvides enunciar las hipótesis,seleccionar una prueba para docimarlas y verificar si se cumplen las condiciones necesarias pararealizar la prueba seleccionada.
+
+**Respuesta**: Para responder a esta pregunta primero definiremos las hipotesis con las que trabajaremos:
+
+- $H_0$: La proporción de dias en las que los estudiantes se sentian cansados es igual en todos los dias
+
+- $H_a$: La proporción de dias en las que los estudiantes se sentian cansados no es igual en todos los dias
+
+Con esto definido, ocuparemos una prueba q de cochran para docimar ya que, como podemos apreciar la variable de respuesta es dicotomica ya que es cansado o descansado, (0) o (1), luego la variable independiente es categorica en este caso con 3 niveles (lunes, miercoles y viernes), sabemos que las observaciones son independientes ya que los datos se tomaron en la semana de receso por ende todos los encuestados no dependen de lo que hayan contestado sus otros compañeros y finalmente tenemos 20 bloques y 3 tratamientos por lo que $20 \times 3 = 60 \geq 24$, dicho esto cumplimos con todos los requerimientos para aplicar una prueba de q de cochran.
+
+```{r}
+#los datos del problema
+instancias<- 1:20
+lunes<-    c(1,0,0,0,1,0,0,0,0,0,1,1,0,1,0,0,0,0,1,0)
+miercoles<-c(1,1,0,1,0,1,1,0,1,1,1,1,0,0,1,1,0,1,0,1)
+viernes<-  c(1,1,1,0,0,1,1,1,1,0,0,1,0,1,1,0,1,1,1,1)
+
+datos_anchos <- data.frame(instancias, lunes, miercoles, viernes)
+
+# llevamos los datos a formalo largo
+datos_largos <- datos_anchos |> pivot_longer(c("lunes", "miercoles", "viernes"),
+                                             names_to = "dias", values_to = "resultados") |> mutate_at(c("instancias", "dias"), as.factor)
+
+
+#definimos condiciones y nivel de significancia
+minimo_tamaño_de_muestra <- 24
+alfa<-0.05
+
+#calculamos tamaño de muestra
+N<- nrow(datos_anchos[, -1]) * ncol(datos_anchos[, -1])
+
+prueba_qc <- cochran.qtest(resultados ~ dias | instancias, data = datos_largos, alpha = alfa)
+
+cat("Resultado de la prueba Q de cochran:\n")
+print(prueba_qc)
+```
+
+Finalmente, viendo los resultados obtuvimos un $Q=6.7059$ con un $p-value=0.03498$, por lo que con un $\alpha=0.05$ podemos rechazar la hipotesis nula en favor de la hipotesis alternaiva, es decir, con un $95\%$ de confianza podemos afirmar que la proporción de dias en las que los estudiantes se sentian cansados no es igual en todos los dias.

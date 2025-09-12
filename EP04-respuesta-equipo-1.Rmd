@@ -90,9 +90,33 @@ Una organización dedicada a la rehabilitación de villanos ha observado que muc
 
 ¿Qué se puede concluir acerca de la efectividad del nuevo programa de bienvenida para reducir la hostilidad en los villanos?
 
+Se definen las hipótesis a docimar
+
+$H_o:$ No hay diferencias en los villanos tras ingresar al programa
+$H_a:$ Hay diferencias en los villanos tras ingresar al programa
+
+
+Se  decide utilizar McNemar para evaluar la prueba, además se cumplen las condiciones para hacer uso:
+
+1. Los datos son pareados
+2. Variable dicotómica: Si / No
+3. Tamaño de la muestra b + c = 16 < 25 (según la lectura no es recomendable usar McNemar)
+4. Muestras independientes
 
 ```{r}
+#mcnemar
+matriz <- matrix(c(2,15,1,2),
+                nrow=2,
+                byrow=TRUE,
+                dimnames=list("Antes"=c("Hostilidad","No hostilidad"),
+                              "Después"=c("Hostilidad","No hostilidad")))
+print(matriz)
+prueba <- mcnemar.test(matriz, correct = T)
+print(prueba)
 ```
+
+Con el p-value obtenido (0.0004653), se puede concluir que la efectividad del programa de bienvenida para reducir la hostilidad en los villanos es efectiva, ya que el valor es menor a un alfa 0.05, por lo que se rechaza la hipótesis nula.
+
 
 <h4> **Pregunta 4** </h4>
 

@@ -29,6 +29,13 @@ Una agencia de marketing desea determinar si hay una diferencia significativa en
 
 *Indicación: obtenga la muestra de 50 personas a partir del archivo “EP04 Datos.csv” que se encuentra en el directorio compartido, usando la semilla 102. Considere un nivel de significación α=0,05.*
 
+**Respuesta**: Para responder a esta pregunta, primero formularemos las hipotesis de estudio las cuales son omnibus para diferencia de medias
+
+- $H_0$: la proporcion de aceptacion de las estrategias es igual para las 3 estrategias
+- $H_a$: la proporcion de aceptacion de las estrategias es diferentesd para las 3 estrategias
+
+Además, tomaremos en cuenta que estamos en un caso de una varaible dicotomica la cual es 0 o 1, ademas la variable independiente es categoria de 3 niveles (estrategia_1, estrategia_2, estrategia_3), ademas sabemos que las observaciones son independientes entre si, tambien el tamaño de la muestra es bloques por tratamientos lo cual resulta en  $50\times 3 \geq 24$, por lo que se cumplen las condiciones para poder ocupar una prueba de mcnemar o q de cochran, pero en este caso ocuparemos la prueba de cochran, 
+
 ```{r}
 set.seed(102)
 
@@ -47,16 +54,12 @@ head(datos_aleatorios)
 
 instancias<- c(1:50)
 
-nombres = c("estrategia_1", "estrategia_2", "estrategia_3")
-
 df_valores <- as.data.frame(datos_aleatorios[, 1:3])
-datos1 <- cbind(Nombres = nombres, df_valores)
-
-
-datos_aleatorios <- data.frame(instancias)
+colnames(df_valores) <- c("estrategia_1", "estrategia_2", "estrategia_3")
+df_valores$instancias <- 1:nrow(df_valores)
 
 # llevamos los datos a formalo largo
-datos_largos <- datos_aleatorios |> pivot_longer(c("estrategia_1", "estrategia_2", "estrategia_3"),
+datos_largos <- df_valores |> pivot_longer(c("estrategia_1", "estrategia_2", "estrategia_3"),
                                              names_to = "personas", values_to = "resultados") |> mutate_at(c("instancias", "personas"), as.factor)
 
 alfa<-0.05
@@ -70,6 +73,24 @@ prueba_qc <- cochran.qtest(resultados ~ personas | instancias, data = datos_larg
 cat("Resultado de la prueba Q de cochran:\n")
 print(prueba_qc)
 ```
+
+Con estos resultados, obtenemos un p-value de 1.691e-06 lo cual nos hace recahzar la hipotesis nula en favor de la hipotesis alternativa por lo que concluiremos que la proporcion de aceptacion de las estrategias es diferente para las 3 estrategias, para corroborar estos resultados haremos uso de una prueba post-hoc, la cual es la prueba post-hoc de benjamini y yekutielli y holm
+
+```{r}
+if(prueba_qc[["p.value"]] < alfa)
+{
+  #aplicamos procedimiento con post hoc
+  post_hoc_1 <- pairwiseMcnemar(resultados ~ personas | instancias, data = datos_largos, test="mcnemar", correct=FALSE, method = "holm")
+  
+  print(post_hoc_1)
+  #aplicamos el segundo procedimiento post-hoc
+  post_hoc_2 <- pairwiseMcnemar(resultados ~ personas | instancias, data = datos_largos, test="mcnemar", correct=FALSE, method = "BY")
+
+  print(post_hoc_2)  
+}
+```
+
+A partir de los resultados podemos ver que entre la estrategia 1 en relación con las estrategias 1 y 2, entonces podemos ver que con un p-value de << 0 podemos decir que la acptación no es igual, pero en relación con la aceptacion de la 2 en relación a la 3, esta si es igual, por lo que recomendamos volver a repetir el experimento pero con más datos
 
 <h4> **Pregunta 2** </h4>
 

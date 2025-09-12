@@ -399,7 +399,8 @@ tambien el tamaño de la muestra es bloques por tratamientos lo cual
 resulta en <span class="math inline">\(50\times 3 \geq 24\)</span>, por
 lo que se cumplen las condiciones para poder ocupar una prueba de
 mcnemar o q de cochran, pero en este caso ocuparemos la prueba de
-cochran,</p>
+cochran, ya que se pueden apreciar 2 o mas tratamientos, más en
+espesifico, 3 tratamientos, y la prueba de mcnemar solo acepta 2.</p>
 <pre class="r"><code>set.seed(102)
 
 #obtenermos los datos aleatorios del dataframe
@@ -513,7 +514,7 @@ benjamini y yekutielli y holm</p>
 ## 3 estrategia_2 - estrategia_3 = 0  0.727  1    0.394 7.22e-01</code></pre>
 <p>A partir de los resultados podemos ver que entre la estrategia 1 en
 relación con las estrategias 1 y 2, entonces podemos ver que con un
-p-value de &lt;&lt; 0 podemos decir que la acptación no es igual, pero
+p-value de &lt;&lt; 0 podemos decir que la aceptación no es igual, pero
 en relación con la aceptacion de la 2 en relación a la 3, esta si es
 igual, por lo que recomendamos volver a repetir el experimento pero con
 más datos</p>
@@ -557,8 +558,70 @@ un centro comercial. Algunas personas piensan que la escuela es más
 segura, mientras que otras consideran que el centro comercial es más
 seguro. Después de elegir sus opciones, se observa que 6 mujeres y 10
 hombres eligen refugiarse en la escuela abandonada mientras que los
-otros optan por el centro comercial. ¿Hay relación entre el sexo de la
-persona y el edificio abandonado que encuentra más seguro?</p>
+otros optan por el centro comercial.</p>
+<p>¿Hay relación entre el sexo de la persona y el edificio abandonado
+que encuentra más seguro?</p>
+<p><strong>Respuesta</strong>: para responder primero, armaremos la
+matriz de la cual despues haremos el analisis, ocuparemos la prueba de
+fisher, ya que tenemos 2 varaibles categoricas donde una es dicotomica y
+la otra de niveles, (hombres y mujeres, que tienen una cantidad y los
+edificios que son una varaible categorica de dos niveles, escuela y
+centro comercial), a continuación, verificaremos las dos condiciones
+para poder realizar esta prueba, las cuales son:</p>
+<ul>
+<li><p>Las observaciones deben ser independientes entre si, bajo el
+enunciado, dentro de la decision de cada persona sobre en que edificio
+decidirá refujiarse y ademas asumiremos que cada persona no influye en
+la decición de las demás (esto bajo el enunciado)</p></li>
+<li><p>Solo deben haber menos de 5 observaciones, en este caso se cumple
+ya que en algunas celdas de la matriz existen menos de 5 observaciones
+lo que hace la alternativa de ocupar una prueba de chi-cuadrado sea
+infactible ya que al tener menos de 5 observaciones en algunas casillas,
+tendremos resultados distoriconados</p></li>
+</ul>
+<pre class="r"><code>#armaremos la matriz ocupando 
+matriz_datos &lt;- matrix(c(6, 4, 10, 2), nrow=2, byrow = TRUE)
+rownames(matriz_datos) &lt;- c(&quot;Mujeres&quot;, &quot;Hombre&quot;)
+colnames(matriz_datos) &lt;- c(&quot;Escuela&quot;, &quot;Centro Comercial&quot;)
+
+matriz_datos</code></pre>
+<pre><code>##         Escuela Centro Comercial
+## Mujeres       6                4
+## Hombre       10                2</code></pre>
+<pre class="r"><code>#definimos el nivel de confianza
+alfa &lt;- 0.05</code></pre>
+<p>En base a esta matriz, aplicaremos la prueba de chi-cuadrado de
+pearson considerando las siguientes hipotesis</p>
+<ul>
+<li><p><span class="math inline">\(H_0\)</span>: el sexo de la persona y
+el edificio abandonado que encuentra mas seguro no estan
+relacionadas</p></li>
+<li><p><span class="math inline">\(H_a\)</span>: el sexo de la persona y
+el edificio abandonado que encuentra mas seguro estan
+relacionadas</p></li>
+</ul>
+<pre class="r"><code>#Ahora con esto definido, podemos hacer la prueba de fisher
+
+fisher.test(matriz_datos, alternative = &quot;two.sided&quot;, conf.level = 1-alfa)</code></pre>
+<pre><code>## 
+##  Fisher&#39;s Exact Test for Count Data
+## 
+## data:  matriz_datos
+## p-value = 0.3476
+## alternative hypothesis: true odds ratio is not equal to 1
+## 95 percent confidence interval:
+##  0.02216773 3.02537284
+## sample estimates:
+## odds ratio 
+##  0.3176677</code></pre>
+<p>Con esto podemos ver que el p-value obtenido es de 0.3476 el cual es
+mayor que 0.05 que es nuestro nivel de confianza, por lo que aceptamos
+la hipotesis nula y concluimos que el sexo de la persona y el edificio
+abandonado que se encuentra más seguro no estan relacionadas, dado que
+estamos trabajando con una tabla de contingencia y con una prueba exacta
+de fisher, entonces no es necesario un procedimiento post-hoc ya que el
+hecho de aceptar o rechazar una hipotesis, nos dice si estan
+relacionadas o no que es lo que inicialmente se buscaba resolver.</p>
 
 
 

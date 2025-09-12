@@ -34,7 +34,7 @@ Una agencia de marketing desea determinar si hay una diferencia significativa en
 - $H_0$: la proporcion de aceptacion de las estrategias es igual para las 3 estrategias
 - $H_a$: la proporcion de aceptacion de las estrategias es diferentesd para las 3 estrategias
 
-Además, tomaremos en cuenta que estamos en un caso de una varaible dicotomica la cual es 0 o 1, ademas la variable independiente es categoria de 3 niveles (estrategia_1, estrategia_2, estrategia_3), ademas sabemos que las observaciones son independientes entre si, tambien el tamaño de la muestra es bloques por tratamientos lo cual resulta en  $50\times 3 \geq 24$, por lo que se cumplen las condiciones para poder ocupar una prueba de mcnemar o q de cochran, pero en este caso ocuparemos la prueba de cochran, 
+Además, tomaremos en cuenta que estamos en un caso de una varaible dicotomica la cual es 0 o 1, ademas la variable independiente es categoria de 3 niveles (estrategia_1, estrategia_2, estrategia_3), ademas sabemos que las observaciones son independientes entre si, tambien el tamaño de la muestra es bloques por tratamientos lo cual resulta en  $50\times 3 \geq 24$, por lo que se cumplen las condiciones para poder ocupar una prueba de mcnemar o q de cochran, pero en este caso ocuparemos la prueba de cochran, ya que se pueden apreciar 2 o mas tratamientos, más en espesifico, 3 tratamientos, y la prueba de mcnemar solo acepta 2. 
 
 ```{r}
 set.seed(102)
@@ -90,7 +90,7 @@ if(prueba_qc[["p.value"]] < alfa)
 }
 ```
 
-A partir de los resultados podemos ver que entre la estrategia 1 en relación con las estrategias 1 y 2, entonces podemos ver que con un p-value de << 0 podemos decir que la acptación no es igual, pero en relación con la aceptacion de la 2 en relación a la 3, esta si es igual, por lo que recomendamos volver a repetir el experimento pero con más datos
+A partir de los resultados podemos ver que entre la estrategia 1 en relación con las estrategias 1 y 2, entonces podemos ver que con un p-value de << 0 podemos decir que la aceptación no es igual, pero en relación con la aceptacion de la 2 en relación a la 3, esta si es igual, por lo que recomendamos volver a repetir el experimento pero con más datos
 
 <h4> **Pregunta 2** </h4>
 
@@ -118,5 +118,37 @@ Una organización dedicada a la rehabilitación de villanos ha observado que muc
 <h4> **Pregunta 4** </h4>
 
 Durante un apocalipsis zombie, un grupo de 10 mujeres y 14 hombres sobrevivientes se encuentra buscando desesperadamente refugio y encuentran dos edificios abandonados que podrían servir: una escuela y un centro comercial. Algunas personas piensan que la escuela es más segura, mientras que otras consideran que el centro comercial es más seguro. Después de elegir sus opciones, se observa que 6 mujeres y 10 hombres eligen refugiarse en la escuela abandonada mientras que los otros optan por el centro comercial.
+
 ¿Hay relación entre el sexo de la persona y el edificio abandonado que encuentra más seguro?
 
+**Respuesta**: para responder primero, armaremos la matriz de la cual despues haremos el analisis, ocuparemos la prueba de fisher, ya que tenemos 2 varaibles categoricas donde una es dicotomica y la otra de niveles, (hombres y mujeres, que tienen una cantidad y los edificios que son una varaible categorica de dos niveles, escuela y centro comercial), a continuación, verificaremos las dos condiciones para poder realizar esta prueba, las cuales son:
+
+- Las observaciones deben ser independientes entre si, bajo el enunciado, dentro de la decision de cada persona sobre en que edificio decidirá refujiarse y ademas asumiremos que cada persona no influye en la decición de las demás (esto bajo el enunciado)
+
+- Solo deben haber menos de 5 observaciones, en este caso se cumple ya que en algunas celdas de la matriz existen menos de 5 observaciones lo que hace la alternativa de ocupar una prueba de chi-cuadrado sea infactible ya que al tener menos de 5 observaciones en algunas casillas, tendremos resultados distoriconados
+```{r}
+#armaremos la matriz ocupando 
+matriz_datos <- matrix(c(6, 4, 10, 2), nrow=2, byrow = TRUE)
+rownames(matriz_datos) <- c("Mujeres", "Hombre")
+colnames(matriz_datos) <- c("Escuela", "Centro Comercial")
+
+matriz_datos
+
+#definimos el nivel de confianza
+alfa <- 0.05
+```
+
+En base a esta matriz, aplicaremos la prueba de chi-cuadrado de pearson considerando las siguientes hipotesis
+
+- $H_0$: el sexo de la persona y el edificio abandonado que encuentra mas seguro no estan relacionadas
+
+- $H_a$: el sexo de la persona y el edificio abandonado que encuentra mas seguro estan relacionadas
+
+```{r}
+#Ahora con esto definido, podemos hacer la prueba de fisher
+
+fisher.test(matriz_datos, alternative = "two.sided", conf.level = 1-alfa)
+
+```
+
+Con esto podemos ver que el p-value obtenido es de 0.3476 el cual es mayor que 0.05 que es nuestro nivel de confianza, por lo que aceptamos la hipotesis nula y concluimos que el sexo de la persona y el edificio abandonado que se encuentra más seguro no estan relacionadas, dado que estamos trabajando con una tabla de contingencia y con una prueba exacta de fisher, entonces no es necesario un procedimiento post-hoc ya que el hecho de aceptar o rechazar una hipotesis, nos dice si estan relacionadas o no que es lo que inicialmente se buscaba resolver.

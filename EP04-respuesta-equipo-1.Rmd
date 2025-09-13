@@ -97,9 +97,32 @@ A partir de los resultados podemos ver que entre la estrategia 1 en relación co
 Una organización de conservación de la fauna silvestre estudia manadas de tres tipos de animales herbívoros en reservas naturales africanas. Se seleccionó aleatoriamente una muestra de 30 observaciones de los animales que se acercaron a beber agua en el principal afluente de las reservas Etosha y Mahago durante tres días consecutivos del mes de febrero. Se registraron 5 elefantes, 10 antílopes y 15 cebras en la primera, y 6 elefantes, 14 antílopes y 10 cebras en la segunda.
 ¿Existe evidencia de que la proporción de especies es la misma en ambas reservas?
 
+Para responder esta pregunta se definen las hipótesis a docimar:
+
+$H_0:$ Las proporciones de especies son iguales en ambas reservas
+$H_a:$ HLas proporciones de especies son  distintas en ambas reservas
+
+Para desarrollar una solucón, se utilizará la prueba de Chi-cuadrado.
+Condiciones:
+  1. La muestra se selecciona de manera aleatoria.
+  2. Las variables son cualitativas
+  3. Valores esperados superan las 5 observaciones (ver tabla)
+
 
 ```{r}
+
+etosha <- c(5,10,15)
+mahago <- c(6,14,10)
+
+tabla <- as.table(rbind(etosha, mahago))
+dimnames(tabla) <- list(reserva=c("etosha", "mahago"),
+                        especies=c("elefante","antilopes","cebra"))
+
+prueba <- chisq.test(tabla, correct = F)
+print(tabla)
+print(prueba)
 ```
+Dado que el p-value es de 0.4153 y con un nivel de significancia de 0.05, no existe evidencia suficiente para rechazar la hipótesis nula, por lo tanto, se concluye que las proporciones de especies no son distintas en ambas reservaS.
 
 <h4> **Pregunta 3** </h4>
 
@@ -111,9 +134,33 @@ Una organización dedicada a la rehabilitación de villanos ha observado que muc
 
 ¿Qué se puede concluir acerca de la efectividad del nuevo programa de bienvenida para reducir la hostilidad en los villanos?
 
+Se definen las hipótesis a docimar
+
+$H_o:$ No hay diferencias en los villanos tras ingresar al programa
+$H_a:$ Hay diferencias en los villanos tras ingresar al programa
+
+
+Se  decide utilizar McNemar para evaluar la prueba, además se cumplen las condiciones para hacer uso:
+
+1. Los datos son pareados
+2. Variable dicotómica: Si / No
+3. Tamaño de la muestra b + c = 16 < 25 (según la lectura no es recomendable usar McNemar)
+4. Muestras independientes
 
 ```{r}
+#mcnemar
+matriz <- matrix(c(2,15,1,2),
+                nrow=2,
+                byrow=TRUE,
+                dimnames=list("Antes"=c("Hostilidad","No hostilidad"),
+                              "Después"=c("Hostilidad","No hostilidad")))
+print(matriz)
+prueba <- mcnemar.test(matriz, correct = FALSE) # Se utiliza correct FALSE, ya que b + c < 25
+print(prueba)
 ```
+
+Con el p-value obtenido (0.0004653), se puede concluir que la efectividad del programa de bienvenida para reducir la hostilidad en los villanos es efectiva, ya que el valor es menor a un alfa 0.05, por lo que se rechaza la hipótesis nula.
+
 
 <h4> **Pregunta 4** </h4>
 

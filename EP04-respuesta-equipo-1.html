@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Patricio Bustos" />
+<meta name="author" content />
 
 <meta name="date" content="2025-09-07" />
 
-<title>Lectura 5</title>
+<title>EP04-respuestas-equipo-1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,8 +350,8 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Lectura 5</h1>
-<h4 class="author">Patricio Bustos</h4>
+<h1 class="title toc-ignore">EP04-respuestas-equipo-1</h1>
+<h4 class="author"></h4>
 <h4 class="date">2025-09-07</h4>
 
 </div>
@@ -530,6 +530,37 @@ de febrero. Se registraron 5 elefantes, 10 antílopes y 15 cebras en la
 primera, y 6 elefantes, 14 antílopes y 10 cebras en la segunda. ¿Existe
 evidencia de que la proporción de especies es la misma en ambas
 reservas?</p>
+<p>Para responder esta pregunta se definen las hipótesis a docimar:</p>
+<p><span class="math inline">\(H_0:\)</span> Las proporciones de
+especies son iguales en ambas reservas <span class="math inline">\(H_a:\)</span> HLas proporciones de especies son
+distintas en ambas reservas</p>
+<p>Para desarrollar una solucón, se utilizará la prueba de Chi-cuadrado.
+Condiciones: 1. La muestra se selecciona de manera aleatoria. 2. Las
+variables son cualitativas 3. Valores esperados superan las 5
+observaciones (ver tabla)</p>
+<pre class="r"><code>etosha &lt;- c(5,10,15)
+mahago &lt;- c(6,14,10)
+
+tabla &lt;- as.table(rbind(etosha, mahago))
+dimnames(tabla) &lt;- list(reserva=c(&quot;etosha&quot;, &quot;mahago&quot;),
+                        especies=c(&quot;elefante&quot;,&quot;antilopes&quot;,&quot;cebra&quot;))
+
+prueba &lt;- chisq.test(tabla, correct = F)
+print(tabla)</code></pre>
+<pre><code>##         especies
+## reserva  elefante antilopes cebra
+##   etosha        5        10    15
+##   mahago        6        14    10</code></pre>
+<pre class="r"><code>print(prueba)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  tabla
+## X-squared = 1.7576, df = 2, p-value = 0.4153</code></pre>
+<p>Dado que el p-value es de 0.4153 y con un nivel de significancia de
+0.05, no existe evidencia suficiente para rechazar la hipótesis nula,
+por lo tanto, se concluye que las proporciones de especies no son
+distintas en ambas reservaS.</p>
 <h4>
 <strong>Pregunta 3</strong>
 </h4>
@@ -548,6 +579,41 @@ villano desarrolló síntomas de hostilidad tras participar en el programa
 cuando antes no era hostil.</p>
 <p>¿Qué se puede concluir acerca de la efectividad del nuevo programa de
 bienvenida para reducir la hostilidad en los villanos?</p>
+<p>Se definen las hipótesis a docimar</p>
+<p><span class="math inline">\(H_o:\)</span> No hay diferencias en los
+villanos tras ingresar al programa <span class="math inline">\(H_a:\)</span> Hay diferencias en los villanos tras
+ingresar al programa</p>
+<p>Se decide utilizar McNemar para evaluar la prueba, además se cumplen
+las condiciones para hacer uso:</p>
+<ol style="list-style-type: decimal">
+<li>Los datos son pareados</li>
+<li>Variable dicotómica: Si / No</li>
+<li>Tamaño de la muestra b + c = 16 &lt; 25 (según la lectura no es
+recomendable usar McNemar)</li>
+<li>Muestras independientes</li>
+</ol>
+<pre class="r"><code>#mcnemar
+matriz &lt;- matrix(c(2,15,1,2),
+                nrow=2,
+                byrow=TRUE,
+                dimnames=list(&quot;Antes&quot;=c(&quot;Hostilidad&quot;,&quot;No hostilidad&quot;),
+                              &quot;Después&quot;=c(&quot;Hostilidad&quot;,&quot;No hostilidad&quot;)))
+print(matriz)</code></pre>
+<pre><code>##                Después
+## Antes           Hostilidad No hostilidad
+##   Hostilidad             2            15
+##   No hostilidad          1             2</code></pre>
+<pre class="r"><code>prueba &lt;- mcnemar.test(matriz, correct = FALSE) # Se utiliza correct FALSE, ya que b + c &lt; 25
+print(prueba)</code></pre>
+<pre><code>## 
+##  McNemar&#39;s Chi-squared test
+## 
+## data:  matriz
+## McNemar&#39;s chi-squared = 12.25, df = 1, p-value = 0.0004653</code></pre>
+<p>Con el p-value obtenido (0.0004653), se puede concluir que la
+efectividad del programa de bienvenida para reducir la hostilidad en los
+villanos es efectiva, ya que el valor es menor a un alfa 0.05, por lo
+que se rechaza la hipótesis nula.</p>
 <h4>
 <strong>Pregunta 4</strong>
 </h4>
